@@ -1,4 +1,5 @@
 import { translate } from './translate';
+import { targetLangStorage } from '@extension/storage';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -13,7 +14,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     switch (info.menuItemId) {
       case 'translation': {
         const selectedText = info.selectionText ?? '';
-        const userTargetLang = 'JA';
+        const userTargetLang = await targetLangStorage.get();
         const translatedText = await translate(selectedText, userTargetLang);
         console.log('翻訳結果: ' + translatedText);
         break;
