@@ -1,12 +1,25 @@
 import { withErrorBoundary, withSuspense } from '@extension/shared';
+import { showIconStorage } from '@extension/storage';
 import { Stack, Switch, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Popup = () => {
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(showIconStorage.getSnapshot() ?? false);
+
+  useEffect(() => {
+    showIconStorage.get().then(setChecked);
+    const unsubscribe = showIconStorage.subscribe(async () => {
+      showIconStorage.get().then(setChecked);
+    });
+    return () => {
+      unsubscribe(); // *3
+    };
+  }, []);
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.currentTarget.checked);
+    const newValue = event.currentTarget.checked;
+    setChecked(newValue);
+    showIconStorage.set(newValue);
   };
 
   return (
