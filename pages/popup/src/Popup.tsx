@@ -12,7 +12,7 @@ const Popup = () => {
       showIconStorage.get().then(setChecked);
     });
     return () => {
-      unsubscribe(); // *3
+      unsubscribe();
     };
   }, []);
 
