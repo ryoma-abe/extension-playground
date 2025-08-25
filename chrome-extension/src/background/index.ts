@@ -1,16 +1,17 @@
-import { addListener } from 'process';
-
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
-    id: 'a',
-    title: '(A) 常に表示',
-    contexts: ['all'],
-  });
-  chrome.contextMenus.create({
-    id: 'b',
-    title: '(B) 選択時のみ表示',
+    id: 'translation',
+    title: '選択したテキストを翻訳',
     contexts: ['selection'],
   });
 });
 
-chrome.contextMenus.onClicked.addListener();
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (tab !== undefined) {
+    switch (info.menuItemId) {
+      case 'translation':
+        console.log('選択されたテキスト: ' + info.selectionText);
+        break;
+    }
+  }
+});
