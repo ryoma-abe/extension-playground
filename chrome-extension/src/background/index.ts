@@ -1,3 +1,5 @@
+import { addListener } from 'process';
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: 'a',
@@ -10,3 +12,5 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ['selection'],
   });
 });
+
+chrome.contextMenus.onClicked.addListener();
