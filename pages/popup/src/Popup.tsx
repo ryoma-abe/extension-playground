@@ -1,20 +1,19 @@
 import { withErrorBoundary, withSuspense } from '@extension/shared';
+import { Stack, Switch, Typography } from '@mui/material';
 import { useState } from 'react';
 
 const Popup = () => {
   const [checked, setChecked] = useState(false);
+
+  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.currentTarget.checked);
+  };
+
   return (
-    <div className="flex justify-between p-4">
-      <span className="text-base text-gray-700">拡張機能のアイコンを表示</span>
-      <button
-        onClick={() => setChecked(!checked)}
-        className={`relative flex h-6 w-10 items-center rounded-full bg-gray-300 transition-colors 
-          ${checked ? 'bg-green-500' : 'bg-gray-400'}`}>
-        <div
-          className={`size-4 rounded-full bg-white transition-transform ${checked ? 'translate-x-5' : 'translate-x-1'}`}
-        />
-      </button>
-    </div>
+    <Stack direction="row" justifyContent="space-between" alignItems="center" p={1}>
+      <Typography variant="body1">拡張機能のアイコンを表示</Typography>
+      <Switch checked={checked} onChange={handleToggle} color="success" />
+    </Stack>
   );
 };
 
