@@ -6,6 +6,9 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import type {} from '@mui/material/themeCssVarsAugmentation';
+import { showIconStorage } from '@extension/storage';
+import { ClickAwayListener } from '@mui/material';
+import { Icon } from '@src/Icon';
 
 const root = document.createElement('chrome-extension-boilerplate-react-vite-content-view-root');
 root.style.zIndex = '2147483647';
@@ -27,12 +30,18 @@ const theme = createTheme({
 });
 
 const App = () => {
-  const [mode, setMode] = useState<'dialog' | 'idle'>('idle');
+  const [mode, setMode] = useState<'dialog' | 'icon' | 'idle'>('idle');
   const [data, setData] = useState<DialogBoxProps | null>(null);
   const [rect, setRect] = useState<DOMRect | null>(null);
-
+  const [iconPosition, setIconPosition] = useState<{ x: number; y: number } | null>(null);
+  const [selectedText, setSelectedText] = useState<string>('');
+  const showIcon = showIconStorage.getSnapshot() ?? true;
   const handleDialogClose = () => {
     setMode('idle');
+  };
+  const handleIconClick = () => {
+    setMode('idle');
+    setIconPosition(null);
   };
 
   useEffect(() => {
@@ -54,6 +63,23 @@ const App = () => {
     chrome.runtime.onMessage.addListener(listener);
     return () => chrome.runtime.onMessage.removeListener(listener);
   }, [rect]);
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      const selection = window.getSelection();
+      if (selection && selection.toString().length > 0) {
+        setSelectedText(selection.toString());
+        const rect = selection.getRangeAt(0).getBoundingClientRect();
+        setRect(rect);
+        setIconPosition({ x: rect.right, y: rect.bottom });
+        setMode('icon');
+      }
+    };
+    if (mode !== 'dialog') {
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, [mode]);
   return (
     <>
       {mode === 'dialog' && data !== null && rect !== null && (
@@ -68,6 +94,19 @@ const App = () => {
             <DialogBox {...data} />
           </div>
         </div>
+      )}
+      {mode === 'icon' && iconPosition !== null && showIcon && (
+        <ClickAwayListener onClickAway={() => setMode('idle')} mouseEvent="onMouseDown">
+          <div
+            style={{
+              position: 'absolute',
+              left: window.scrollX + iconPosition.x,
+              top: window.scrollY + iconPosition.y,
+              zIndex: 2147483550,
+            }}>
+            <Icon handleClick={handleIconClick} />
+          </div>
+        </ClickAwayListener>
       )}
     </>
   );
