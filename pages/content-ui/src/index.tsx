@@ -42,6 +42,12 @@ const App = () => {
   const handleIconClick = () => {
     setMode('idle');
     setIconPosition(null);
+    chrome.runtime.sendMessage({
+      type: 'TRANSLATE',
+      data: {
+        selectedText: selectedText,
+      },
+    });
   };
 
   useEffect(() => {

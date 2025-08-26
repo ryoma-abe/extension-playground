@@ -31,3 +31,21 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     }
   }
 });
+
+chrome.runtime.onMessage.addListener(async function (message, sender) {
+  if (message.type === 'TRANSLATE') {
+    const selectedText = message.data.selectedText ?? '';
+    const userTargetLang = await targetLangStorage.get();
+    const translatedText = await translate(selectedText, userTargetLang);
+    if (sender.tab?.id !== undefined) {
+      chrome.tabs.sendMessage(sender.tab.id, {
+        type: 'SHOW',
+        data: {
+          lang: userTargetLang,
+          translatedText: translatedText,
+          originalText: selectedText,
+        },
+      });
+    }
+  }
+});
